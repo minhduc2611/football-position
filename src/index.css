@@ -1,0 +1,101 @@
+@import 'tailwindcss';
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  @apply bg-slate-950 text-slate-100 antialiased;
+  overscroll-behavior: none;
+}
+
+.safe-pb {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+.safe-pt {
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+}
+
+.safe-px {
+  padding-left: max(0.75rem, env(safe-area-inset-left));
+  padding-right: max(0.75rem, env(safe-area-inset-right));
+}
+
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.token {
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  transition:
+    left 0.55s cubic-bezier(0.34, 1.2, 0.64, 1),
+    top 0.55s cubic-bezier(0.34, 1.2, 0.64, 1),
+    transform 0.15s ease;
+}
+
+.token--dragging {
+  transition: none;
+  transform: scale(1.18);
+  z-index: 30;
+}
+
+.token--playing {
+  transition:
+    left 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+    top 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.field-grass {
+  background: linear-gradient(
+    90deg,
+    #1a6b2e 0%,
+    #1e7a35 12.5%,
+    #1a6b2e 12.5%,
+    #1e7a35 25%,
+    #1a6b2e 25%,
+    #1e7a35 37.5%,
+    #1a6b2e 37.5%,
+    #1e7a35 50%,
+    #1a6b2e 50%,
+    #1e7a35 62.5%,
+    #1a6b2e 62.5%,
+    #1e7a35 75%,
+    #1a6b2e 75%,
+    #1e7a35 87.5%,
+    #1a6b2e 87.5%,
+    #1e7a35 100%
+  );
+}
+
+@keyframes pulse-ring {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(74, 222, 128, 0);
+  }
+}
+
+.token--active-step .player-dot {
+  animation: pulse-ring 1.2s ease infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .token,
+  .token--playing {
+    transition: none;
+  }
+}
