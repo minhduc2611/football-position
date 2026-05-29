@@ -87,7 +87,7 @@ export function EditorView() {
           </div>
         </header>
 
-        <main className="flex min-h-0 flex-1 items-center justify-center overflow-hidden p-2 sm:p-3 md:p-4">
+        <main className="flex min-h-0 flex-1 touch-none items-center justify-center overflow-hidden p-2 sm:p-3 md:p-4">
           <div className="h-full w-full max-w-lg">
             <FootballField
               players={livePlayers}

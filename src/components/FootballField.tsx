@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, type PointerEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react'
 import type { Player, Position } from '../types'
 import { Token } from './Token'
 
@@ -31,6 +31,7 @@ export function FootballField({
     id: string
     players: Player[]
     ball: Position
+    pointerId: number
   } | null>(null)
 
   const toFieldCoords = useCallback((clientX: number, clientY: number) => {
@@ -42,25 +43,10 @@ export function FootballField({
     }
   }, [])
 
-  const handlePointerDown = useCallback(
-    (id: string, e: PointerEvent<HTMLDivElement>) => {
-      if (disabled) return
-      const target = e.currentTarget
-      target.setPointerCapture(e.pointerId)
-      setDraggingId(id)
-      dragRef.current = {
-        id,
-        players: players.map((p) => ({ ...p })),
-        ball: { ...ball },
-      }
-    },
-    [disabled, players, ball],
-  )
-
-  const handlePointerMove = useCallback(
-    (e: PointerEvent<HTMLDivElement>) => {
-      if (!dragRef.current || !fieldRef.current) return
-      const { x, y } = toFieldCoords(e.clientX, e.clientY)
+  const applyDragAt = useCallback(
+    (clientX: number, clientY: number) => {
+      if (!dragRef.current) return
+      const { x, y } = toFieldCoords(clientX, clientY)
       const { id } = dragRef.current
 
       if (id === 'ball') {
@@ -75,13 +61,14 @@ export function FootballField({
     [onMove, toFieldCoords],
   )
 
-  const handlePointerUp = useCallback(
-    (e: PointerEvent<HTMLDivElement>) => {
+  const endDrag = useCallback(
+    (pointerId: number) => {
       if (!dragRef.current) return
-      const { players: finalPlayers, ball: finalBall } = dragRef.current
-      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-        e.currentTarget.releasePointerCapture(e.pointerId)
+      const field = fieldRef.current
+      if (field?.hasPointerCapture(pointerId)) {
+        field.releasePointerCapture(pointerId)
       }
+      const { players: finalPlayers, ball: finalBall } = dragRef.current
       setDraggingId(null)
       dragRef.current = null
       onDragEnd(finalPlayers, finalBall)
@@ -89,14 +76,76 @@ export function FootballField({
     [onDragEnd],
   )
 
+  const handlePointerDown = useCallback(
+    (id: string, e: PointerEvent<HTMLDivElement>) => {
+      if (disabled || !fieldRef.current) return
+      e.preventDefault()
+      e.stopPropagation()
+
+      const field = fieldRef.current
+      field.setPointerCapture(e.pointerId)
+
+      setDraggingId(id)
+      dragRef.current = {
+        id,
+        players: players.map((p) => ({ ...p })),
+        ball: { ...ball },
+        pointerId: e.pointerId,
+      }
+      applyDragAt(e.clientX, e.clientY)
+    },
+    [disabled, players, ball, applyDragAt],
+  )
+
+  const handlePointerMove = useCallback(
+    (e: PointerEvent<HTMLDivElement>) => {
+      if (!dragRef.current) return
+      e.preventDefault()
+      applyDragAt(e.clientX, e.clientY)
+    },
+    [applyDragAt],
+  )
+
+  const handlePointerUp = useCallback(
+    (e: PointerEvent<HTMLDivElement>) => {
+      if (!dragRef.current || dragRef.current.pointerId !== e.pointerId) return
+      endDrag(e.pointerId)
+    },
+    [endDrag],
+  )
+
+  useEffect(() => {
+    if (!draggingId) return
+
+    const onWindowPointerMove = (e: globalThis.PointerEvent) => {
+      if (!dragRef.current || e.pointerId !== dragRef.current.pointerId) return
+      e.preventDefault()
+      applyDragAt(e.clientX, e.clientY)
+    }
+
+    const onWindowPointerUp = (e: globalThis.PointerEvent) => {
+      if (!dragRef.current || e.pointerId !== dragRef.current.pointerId) return
+      endDrag(e.pointerId)
+    }
+
+    window.addEventListener('pointermove', onWindowPointerMove, { passive: false })
+    window.addEventListener('pointerup', onWindowPointerUp)
+    window.addEventListener('pointercancel', onWindowPointerUp)
+
+    return () => {
+      window.removeEventListener('pointermove', onWindowPointerMove)
+      window.removeEventListener('pointerup', onWindowPointerUp)
+      window.removeEventListener('pointercancel', onWindowPointerUp)
+    }
+  }, [draggingId, applyDragAt, endDrag])
+
   return (
     <div
       ref={fieldRef}
-      className="field-grass relative h-full max-h-full w-full overflow-hidden rounded-lg border-[3px] border-white/90 shadow-2xl shadow-black/50 sm:border-4 md:rounded-xl"
+      className="field-grass touch-none relative h-full max-h-full w-full overflow-hidden rounded-lg border-[3px] border-white/90 shadow-2xl shadow-black/50 sm:border-4 md:rounded-xl"
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
-      onPointerLeave={handlePointerUp}
     >
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-2 rounded-sm border-2 border-white/70 sm:inset-3" />

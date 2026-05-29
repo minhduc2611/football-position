@@ -58,6 +58,8 @@ body {
 }
 
 .field-grass {
+  touch-action: none;
+  -webkit-touch-callout: none;
   background: linear-gradient(
     90deg,
     #1a6b2e 0%,

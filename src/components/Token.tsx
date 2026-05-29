@@ -43,9 +43,9 @@ export function Token({
       tabIndex={disabled ? -1 : 0}
       aria-label={kind === 'ball' ? 'Bóng' : `Cầu thủ ${label ?? id}`}
       className={[
-        'token absolute -translate-x-1/2 -translate-y-1/2 cursor-grab select-none',
-        disabled ? 'cursor-default opacity-90' : 'active:cursor-grabbing',
-        isDragging ? 'token--dragging' : '',
+        'token touch-none absolute -translate-x-1/2 -translate-y-1/2 select-none',
+        disabled ? 'cursor-default opacity-90' : 'cursor-grab active:cursor-grabbing',
+        isDragging ? 'token--dragging z-30' : 'z-10',
         isPlaying ? 'token--playing' : '',
         isActiveStep && kind === 'player' ? 'token--active-step' : '',
       ]
@@ -54,22 +54,28 @@ export function Token({
       style={{ left, top }}
       onPointerDown={(e) => {
         if (disabled) return
-        e.preventDefault()
-        e.stopPropagation()
         onPointerDown(id, e)
       }}
     >
-      {kind === 'ball' ? (
-        <span className="block text-xl leading-none drop-shadow-md sm:text-2xl">⚽️</span>
-      ) : (
-        <div
-          className={`player-dot flex h-9 w-9 items-center justify-center rounded-full font-bold shadow-lg ring-2 sm:h-8 sm:w-8 ${teamStyles[team]} ${
-            labelLen > 2 ? 'text-[9px] sm:text-[9px]' : 'text-[10px] sm:text-xs'
-          }`}
-        >
-          {label}
-        </div>
-      )}
+      {/* Larger invisible touch target for mobile */}
+      <div
+        className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center p-3 sm:p-2"
+        style={{ minWidth: 44, minHeight: 44 }}
+      >
+        {kind === 'ball' ? (
+          <span className="pointer-events-none block text-xl leading-none drop-shadow-md sm:text-2xl">
+            ⚽️
+          </span>
+        ) : (
+          <div
+            className={`player-dot pointer-events-none flex h-9 w-9 items-center justify-center rounded-full font-bold shadow-lg ring-2 sm:h-8 sm:w-8 ${teamStyles[team]} ${
+              labelLen > 2 ? 'text-[9px]' : 'text-[10px] sm:text-xs'
+            }`}
+          >
+            {label}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
