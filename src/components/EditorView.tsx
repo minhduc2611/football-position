@@ -21,6 +21,7 @@ export function EditorView() {
   const livePlayers = useTacticsStore((s) => s.livePlayers)
   const liveBall = useTacticsStore((s) => s.liveBall)
   const setLiveScene = useTacticsStore((s) => s.setLiveScene)
+  const goToTacticsList = useTacticsStore((s) => s.goToTacticsList)
 
   const [sheet, setSheet] = useState<MobileSheet>(null)
 
@@ -38,15 +39,6 @@ export function EditorView() {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  useEffect(() => {
-    if (!sheet) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prev
-    }
-  }, [sheet])
-
   if (!activeTactic) {
     return (
       <div className="flex flex-1 items-center justify-center p-4 text-slate-400">
@@ -60,30 +52,47 @@ export function EditorView() {
       <LeftPanel className="hidden lg:flex" variant="sidebar" />
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <header className="safe-pt safe-px shrink-0 border-b border-slate-800 bg-slate-950/90 px-3 py-2 backdrop-blur-sm md:px-4 md:py-3">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] md:text-xs">
-            <span className="inline-flex items-center gap-1.5 text-slate-400">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 md:h-3 md:w-3" />
-              Nhà
-            </span>
-            <span className="inline-flex items-center gap-1.5 text-slate-400">
-              <span className="h-2.5 w-2.5 rounded-full bg-rose-500 md:h-3 md:w-3" />
-              Khách
-            </span>
-            <span className="text-slate-500">⚽️</span>
-            {setupInitial && (
-              <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-amber-300">
-                Vị trí ban đầu
+        <header className="safe-pt safe-px shrink-0 border-b border-slate-800 bg-slate-950/90 backdrop-blur-sm">
+          <div className="flex items-center gap-2 px-2 py-2 md:gap-3 md:px-4 md:py-3">
+            <button
+              type="button"
+              onClick={goToTacticsList}
+              className="touch-target flex shrink-0 items-center gap-1 rounded-lg px-2 py-2 text-xs font-medium text-slate-300 transition active:bg-slate-800 active:text-white lg:hidden"
+              aria-label="Quay lại danh sách chiến thuật"
+            >
+              <span className="text-base leading-none" aria-hidden>
+                ←
               </span>
-            )}
-            {!setupInitial && activeStep && (
-              <span className="truncate text-slate-500">
-                <strong className="text-slate-300">{activeStep.name}</strong>
-                {isStepDirty && (
-                  <span className="ml-1 text-amber-400">· chưa lưu</span>
+              <span className="hidden sm:inline">Chiến thuật</span>
+            </button>
+
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-white md:text-base">
+                {activeTactic.name}
+              </p>
+              <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-slate-500 md:text-xs">
+                <span className="inline-flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  Nhà
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-rose-500" />
+                  Khách
+                </span>
+                <span>⚽️</span>
+                {setupInitial && (
+                  <span className="text-amber-400">Vị trí ban đầu</span>
                 )}
-              </span>
-            )}
+                {!setupInitial && activeStep && (
+                  <span className="truncate">
+                    <span className="text-slate-400">{activeStep.name}</span>
+                    {isStepDirty && (
+                      <span className="text-amber-400"> · chưa lưu</span>
+                    )}
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
         </header>
 
@@ -105,14 +114,8 @@ export function EditorView() {
       </div>
 
       {sheet && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end lg:hidden">
-          <button
-            type="button"
-            className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
-            aria-label="Đóng panel"
-            onClick={() => setSheet(null)}
-          />
-          <div className="relative z-10 w-full">
+        <div className="pointer-events-none fixed inset-0 z-50 flex flex-col justify-end lg:hidden">
+          <div className="pointer-events-auto relative z-10 w-full">
             <LeftPanel
               variant="sheet"
               sheetFocus={sheet}

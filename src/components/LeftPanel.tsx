@@ -31,9 +31,6 @@ export function LeftPanel({
 
   const goToTacticsList = useTacticsStore((s) => s.goToTacticsList)
   const setConfig = useTacticsStore((s) => s.setConfig)
-  const setSetupInitial = useTacticsStore((s) => s.setSetupInitial)
-  const saveInitialPositions = useTacticsStore((s) => s.saveInitialPositions)
-  const livePlayers = useTacticsStore((s) => s.livePlayers)
   const selectStep = useTacticsStore((s) => s.selectStep)
   const updateStepMeta = useTacticsStore((s) => s.updateStepMeta)
   const deleteStep = useTacticsStore((s) => s.deleteStep)
@@ -70,52 +67,75 @@ export function LeftPanel({
         'flex flex-col bg-slate-900/95',
         variant === 'sidebar'
           ? 'h-full w-full shrink-0 border-r border-slate-800 lg:w-72'
-          : 'max-h-[min(78dvh,640px)] w-full rounded-t-2xl',
+          : 'max-h-[50dvh] w-full rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.35)]',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
     >
-      <div className="shrink-0 border-b border-slate-800 p-3 safe-pt">
-        {isSheet && (
-          <div className="mb-2 flex items-center justify-center">
-            <div className="h-1 w-10 rounded-full bg-slate-600" aria-hidden />
+      <div
+        className={
+          isSheet
+            ? 'shrink-0 border-b border-slate-800 px-3 py-2'
+            : 'shrink-0 border-b border-slate-800 p-3 safe-pt'
+        }
+      >
+        {isSheet ? (
+          <div className="flex items-center gap-2">
+            <div className="flex flex-1 justify-center">
+              <div className="h-1 w-10 rounded-full bg-slate-600" aria-hidden />
+            </div>
+            {onCloseSheet && (
+              <button
+                type="button"
+                onClick={onCloseSheet}
+                className={`${btnBase} shrink-0 px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-white`}
+                aria-label="Đóng"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <button
+                type="button"
+                onClick={goToTacticsList}
+                className={`${btnBase} mb-2 min-h-0 py-1 text-xs text-slate-400 hover:text-white`}
+              >
+                ← Chiến thuật
+              </button>
+              <h2 className="truncate text-sm font-semibold text-white md:text-base">
+                {tactic.name}
+              </h2>
+              <p className="text-xs text-slate-500">{tactic.steps.length} bước</p>
+            </div>
           </div>
         )}
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            <button
-              type="button"
-              onClick={goToTacticsList}
-              className={`${btnBase} mb-2 min-h-0 py-1 text-xs text-slate-400 hover:text-white`}
-            >
-              ← Chiến thuật
-            </button>
-            <h2 className="truncate text-sm font-semibold text-white md:text-base">
-              {tactic.name}
-            </h2>
-            <p className="text-xs text-slate-500">{tactic.steps.length} bước</p>
-          </div>
-          {isSheet && onCloseSheet && (
-            <button
-              type="button"
-              onClick={onCloseSheet}
-              className={`${btnBase} shrink-0 px-3 py-2 text-slate-400 hover:bg-slate-800 hover:text-white`}
-              aria-label="Đóng"
-            >
-              ✕
-            </button>
-          )}
-        </div>
       </div>
 
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-3">
+      <div
+        className={
+          isSheet
+            ? 'flex min-h-0 flex-1 flex-col overflow-hidden p-3'
+            : 'min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-3'
+        }
+      >
         {showRoster && (
-          <section>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <section
+            className={isSheet ? 'flex min-h-0 flex-1 flex-col overflow-hidden' : undefined}
+          >
+            <h3 className="mb-2 shrink-0 text-xs font-semibold uppercase tracking-wide text-slate-500">
               Đội hình
             </h3>
-            <div className="flex flex-col gap-3">
+            <div
+              className={
+                isSheet
+                  ? 'flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]'
+                  : 'flex flex-col gap-3'
+              }
+            >
               <PositionRosterEditor
                 team="home"
                 counts={tactic.config.home}
@@ -134,41 +154,19 @@ export function LeftPanel({
                   setConfig({ ...tactic.config, [team]: counts })
                 }
               />
-            </div>
             <p className="mt-2 text-[10px] text-slate-600 md:text-xs">
               Tổng: {rosterTotal(tactic.config.home)} nhà ·{' '}
               {rosterTotal(tactic.config.away)} khách (tối đa 11/đội)
             </p>
-            <button
-              type="button"
-              disabled={isPlaying}
-              onClick={() => setSetupInitial(!setupInitial)}
-              className={`${btnBase} mt-2 w-full px-3 py-3 text-xs ${
-                setupInitial
-                  ? 'bg-amber-600 text-white'
-                  : 'border border-slate-700 bg-slate-800 text-slate-200'
-              }`}
-            >
-              {setupInitial ? 'Đang chỉnh vị trí ban đầu…' : 'Chỉnh vị trí ban đầu'}
-            </button>
-            {setupInitial && (
-              <button
-                type="button"
-                onClick={() => {
-                  saveInitialPositions(livePlayers)
-                  onCloseSheet?.()
-                }}
-                className={`${btnBase} mt-2 w-full bg-emerald-600 px-3 py-3 text-xs font-semibold text-white`}
-              >
-                Lưu vị trí ban đầu
-              </button>
-            )}
+            </div>
           </section>
         )}
 
         {showSteps && (
-          <section>
-            <div className="mb-2 flex items-center justify-between">
+          <section
+            className={isSheet ? 'flex min-h-0 flex-1 flex-col overflow-hidden' : undefined}
+          >
+            <div className="mb-2 flex shrink-0 items-center justify-between">
               <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Các bước
               </h3>
@@ -182,7 +180,13 @@ export function LeftPanel({
               </button>
             </div>
 
-            <ul className="space-y-1.5">
+            <ul
+              className={
+                isSheet
+                  ? 'min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]'
+                  : 'space-y-1.5'
+              }
+            >
               {tactic.steps.map((step, i) => {
                 const selected = i === currentStepIndex && !setupInitial
                 return (
@@ -197,10 +201,7 @@ export function LeftPanel({
                     <button
                       type="button"
                       disabled={isPlaying || setupInitial}
-                      onClick={() => {
-                        selectStep(i)
-                        if (isSheet) onCloseSheet?.()
-                      }}
+                      onClick={() => selectStep(i)}
                       className="w-full px-3 py-3 text-left active:bg-slate-700/50"
                     >
                       {editingStepId === step.id ? (
