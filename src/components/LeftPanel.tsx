@@ -115,7 +115,7 @@ export function LeftPanel({
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
               Đội hình
             </h3>
-            <div className="space-y-2 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
+            <div className="flex flex-col gap-3">
               <PositionRosterEditor
                 team="home"
                 counts={tactic.config.home}
