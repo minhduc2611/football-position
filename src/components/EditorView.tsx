@@ -48,7 +48,7 @@ export function EditorView() {
   }
 
   return (
-    <div className="flex h-dvh max-h-dvh w-full flex-col overflow-hidden lg:flex-row">
+    <div className="flex h-full max-h-full w-full flex-col overflow-hidden lg:flex-row">
       <LeftPanel className="hidden lg:flex" variant="sidebar" />
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">

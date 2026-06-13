@@ -19,7 +19,7 @@ export function TacticsListView() {
     'touch-target rounded-xl text-sm font-medium transition active:scale-[0.98] disabled:opacity-40'
 
   return (
-    <div className="safe-pt safe-pb safe-px mx-auto flex min-h-dvh w-full max-w-2xl flex-col px-3 py-4 sm:px-4 sm:py-6 md:py-8">
+    <div className="safe-pt safe-pb safe-px mx-auto flex h-full w-full max-w-2xl flex-col overflow-y-auto px-3 py-4 sm:px-4 sm:py-6 md:py-8">
       <header className="mb-6 md:mb-8">
         <h1 className="text-xl font-bold text-white sm:text-2xl">Chiến thuật</h1>
         <p className="mt-1 text-sm text-slate-400">
