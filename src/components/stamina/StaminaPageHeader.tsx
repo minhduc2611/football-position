@@ -17,7 +17,7 @@ export function StaminaPageHeader({
     'touch-target flex shrink-0 items-center justify-center rounded-xl border border-slate-700 text-slate-300 transition active:scale-[0.98] active:bg-slate-800'
 
   return (
-    <header className="safe-px flex shrink-0 items-center gap-1 border-b border-slate-800 px-3 py-3 sm:gap-2">
+    <header className="safe-pt safe-px flex shrink-0 items-center gap-1 border-b border-slate-800 bg-slate-950/95 py-3 sm:gap-2">
       <div className="flex shrink-0 items-center gap-1">
         <NavMenuButton />
         {onBack ? (

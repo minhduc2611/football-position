@@ -12,7 +12,7 @@ export function StaminaReportPage({ onBack }: StaminaReportPageProps) {
   const report = computeStaminaReport(sessions)
 
   return (
-    <div className="safe-pt safe-pb flex h-full flex-col overflow-hidden">
+    <div className="safe-pb flex h-full flex-col overflow-hidden">
       <StaminaPageHeader title="Report" onBack={onBack} />
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 [-webkit-overflow-scrolling:touch]">

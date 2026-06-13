@@ -22,12 +22,18 @@ body {
 }
 
 .safe-pt {
-  padding-top: max(0.5rem, env(safe-area-inset-top));
+  padding-top: max(0.75rem, env(safe-area-inset-top, 0px));
+}
+
+.safe-header {
+  padding-top: max(0.75rem, env(safe-area-inset-top, 0px));
+  padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+  padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
 }
 
 .safe-px {
-  padding-left: max(0.75rem, env(safe-area-inset-left));
-  padding-right: max(0.75rem, env(safe-area-inset-right));
+  padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+  padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
 }
 
 .touch-target {

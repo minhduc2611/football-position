@@ -15,7 +15,7 @@ export function StaminaHistoryPage({ onBack }: StaminaHistoryPageProps) {
     'touch-target rounded-xl text-sm font-medium transition active:scale-[0.98]'
 
   return (
-    <div className="safe-pt safe-pb flex h-full flex-col overflow-hidden">
+    <div className="safe-pb flex h-full flex-col overflow-hidden">
       <StaminaPageHeader title="Lịch sử" onBack={onBack} />
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-4">
