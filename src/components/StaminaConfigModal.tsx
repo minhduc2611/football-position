@@ -15,6 +15,8 @@ export function StaminaConfigModal({ open, onClose }: StaminaConfigModalProps) {
   const removeState = useStaminaStore((s) => s.removeState)
   const moveState = useStaminaStore((s) => s.moveState)
   const resetStatesToDefault = useStaminaStore((s) => s.resetStatesToDefault)
+  const countdownEnabled = useStaminaStore((s) => s.countdownEnabled)
+  const setCountdownEnabled = useStaminaStore((s) => s.setCountdownEnabled)
 
   const [newName, setNewName] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -79,6 +81,34 @@ export function StaminaConfigModal({ open, onClose }: StaminaConfigModalProps) {
           <p className="mt-1 text-xs text-slate-500">
             Thứ tự từ trên xuống là luồng chuyển trạng thái khi chạm nút tròn.
           </p>
+        </div>
+
+        <div className="shrink-0 border-b border-slate-800 px-4 py-3">
+          <label className="flex min-h-11 cursor-pointer items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-medium text-white">
+                Đếm 3-2-1 trước khi bắt đầu
+              </p>
+              <p className="text-xs text-slate-500">
+                Hiển thị đếm ngược trước khi chạy phiên mới
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={countdownEnabled}
+              onClick={() => setCountdownEnabled(!countdownEnabled)}
+              className={`relative h-8 w-14 shrink-0 rounded-full transition ${
+                countdownEnabled ? 'bg-emerald-600' : 'bg-slate-700'
+              }`}
+            >
+              <span
+                className={`absolute top-1 left-1 h-6 w-6 rounded-full bg-white transition ${
+                  countdownEnabled ? 'translate-x-6' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </label>
         </div>
 
         <ul className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain p-4 [-webkit-overflow-scrolling:touch]">

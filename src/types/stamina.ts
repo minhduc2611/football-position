@@ -31,7 +31,10 @@ export type StaminaStorage = {
   states: StaminaStateDef[]
   sessions: StaminaSession[]
   activeSession: StaminaActiveSession | null
+  countdownEnabled: boolean
 }
+
+export const DEFAULT_COUNTDOWN_ENABLED = true
 
 export const STAMINA_STORAGE_KEY = 'football-position-stamina'
 

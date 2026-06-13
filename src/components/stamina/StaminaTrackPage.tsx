@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { countdownLabel, useStartCountdown } from '../../hooks/useStartCountdown'
 import {
   selectCurrentStateDef,
   selectCycleStateCount,
@@ -30,20 +31,46 @@ function useNow(active: boolean) {
 
 export function StaminaTrackPage({ onMenuOpen }: StaminaTrackPageProps) {
   const activeSession = useStaminaStore((s) => s.activeSession)
+  const countdownEnabled = useStaminaStore((s) => s.countdownEnabled)
   const tapButton = useStaminaStore((s) => s.tapButton)
+  const startSession = useStaminaStore((s) => s.startSession)
   const endSession = useStaminaStore((s) => s.endSession)
+
+  const onCountdownComplete = useCallback(() => {
+    startSession()
+  }, [startSession])
+
+  const { countdownStep, startCountdown } = useStartCountdown(onCountdownComplete)
 
   const currentState = useStaminaStore(selectCurrentStateDef)
   const cycleStateCount = useStaminaStore(selectCycleStateCount)
 
+  const isCountingDown = countdownStep !== null
   const timerActive = Boolean(activeSession)
   const now = useNow(timerActive)
 
   const elapsedMs = useStaminaStore((s) => selectElapsedMs(s, now))
   const sessionTotalMs = useStaminaStore((s) => selectSessionTotalMs(s, now))
 
-  const btnHint = !activeSession ? 'Chạm để bắt đầu' : 'Chạm để chuyển giai đoạn'
+  const btnHint = isCountingDown
+    ? 'Chuẩn bị…'
+    : !activeSession
+      ? 'Chạm để bắt đầu'
+      : 'Chạm để chuyển giai đoạn'
   const accentColor = currentState?.color ?? '#10b981'
+
+  const handleMainTap = () => {
+    if (isCountingDown) return
+    if (activeSession) {
+      tapButton()
+      return
+    }
+    if (countdownEnabled) {
+      startCountdown()
+      return
+    }
+    startSession()
+  }
 
   const completedSegments = activeSession?.segments ?? []
   const hasCompletedSegments = completedSegments.length > 0
@@ -66,15 +93,29 @@ export function StaminaTrackPage({ onMenuOpen }: StaminaTrackPageProps) {
             <div
               className="stopwatch-panel w-full max-w-sm rounded-2xl border border-slate-700/60 px-3 py-5 sm:py-6"
               aria-live="polite"
-              aria-label={`Thời gian giai đoạn: ${formatStopwatch(elapsedMs)}`}
+              aria-label={
+                isCountingDown
+                  ? `Đếm ngược: ${countdownLabel(countdownStep!)}`
+                  : `Thời gian giai đoạn: ${formatStopwatch(elapsedMs)}`
+              }
             >
-              <p
-                className={`stopwatch-display stopwatch-glow text-center text-[clamp(2.75rem,13vw,4.25rem)] leading-none ${activeSession ? '' : 'opacity-40'
+              {isCountingDown ? (
+                <p
+                  className="stopwatch-display stopwatch-glow text-center text-[clamp(3.5rem,18vw,5.5rem)] leading-none text-emerald-400"
+                  key={countdownStep}
+                >
+                  {countdownLabel(countdownStep!)}
+                </p>
+              ) : (
+                <p
+                  className={`stopwatch-display stopwatch-glow text-center text-[clamp(2.75rem,13vw,4.25rem)] leading-none ${
+                    activeSession ? '' : 'opacity-40'
                   }`}
-                style={{ color: activeSession ? accentColor : '#64748b' }}
-              >
-                {formatStopwatch(elapsedMs)}
-              </p>
+                  style={{ color: activeSession ? accentColor : '#64748b' }}
+                >
+                  {formatStopwatch(elapsedMs)}
+                </p>
+              )}
             </div>
           </div>
 
@@ -109,8 +150,9 @@ export function StaminaTrackPage({ onMenuOpen }: StaminaTrackPageProps) {
             >
               <button
                 type="button"
-                onClick={tapButton}
-                className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-full border-4 border-white/10 px-4 transition active:scale-[0.97]"
+                onClick={handleMainTap}
+                disabled={isCountingDown}
+                className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-full border-4 border-white/10 px-4 transition active:scale-[0.97] disabled:opacity-70"
                 style={{
                   background: `radial-gradient(circle at 30% 25%, ${accentColor}55, ${accentColor}22 45%, #0f172a 75%)`,
                   boxShadow: `0 0 0 1px ${accentColor}33, 0 12px 40px ${accentColor}22`,

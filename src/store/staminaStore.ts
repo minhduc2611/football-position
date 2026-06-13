@@ -8,6 +8,7 @@ import type {
 } from '../types/stamina'
 import {
   CUSTOM_STATE_COLORS,
+  DEFAULT_COUNTDOWN_ENABLED,
   DEFAULT_STAMINA_STATES,
   STAMINA_STORAGE_KEY,
 } from '../types/stamina'
@@ -21,13 +22,16 @@ type StaminaState = {
   states: StaminaStateDef[]
   sessions: StaminaSession[]
   activeSession: StaminaActiveSession | null
+  countdownEnabled: boolean
 
   addState: (name: string) => void
   updateState: (id: string, patch: { name?: string }) => void
   removeState: (id: string) => void
   moveState: (id: string, direction: 'up' | 'down') => void
   resetStatesToDefault: () => void
+  setCountdownEnabled: (enabled: boolean) => void
 
+  startSession: () => void
   tapButton: () => void
   endSession: () => void
   clearHistory: () => void
@@ -40,6 +44,7 @@ export const useStaminaStore = create<StaminaState>()(
       states: DEFAULT_STAMINA_STATES,
       sessions: [],
       activeSession: null,
+      countdownEnabled: DEFAULT_COUNTDOWN_ENABLED,
 
       addState: (name) => {
         const trimmed = name.trim()
@@ -115,25 +120,36 @@ export const useStaminaStore = create<StaminaState>()(
         set({ states: DEFAULT_STAMINA_STATES })
       },
 
+      setCountdownEnabled: (enabled) => {
+        set({ countdownEnabled: enabled })
+      },
+
+      startSession: () => {
+        const { states, activeSession } = get()
+        if (activeSession) return
+
+        const cycleStates = getCycleStates(states)
+        if (cycleStates.length === 0) return
+
+        const now = Date.now()
+        set({
+          activeSession: {
+            startedAt: now,
+            currentStateIndex: 0,
+            stateStartedAt: now,
+            segments: [],
+          },
+        })
+      },
+
       tapButton: () => {
         const { states, activeSession } = get()
         const cycleStates = getCycleStates(states)
         if (cycleStates.length === 0) return
 
+        if (!activeSession) return
+
         const now = Date.now()
-
-        if (!activeSession) {
-          set({
-            activeSession: {
-              startedAt: now,
-              currentStateIndex: 0,
-              stateStartedAt: now,
-              segments: [],
-            },
-          })
-          return
-        }
-
         const current = cycleStates[activeSession.currentStateIndex]
         if (!current) return
 
@@ -206,6 +222,7 @@ export const useStaminaStore = create<StaminaState>()(
       merge: (persisted, current) => {
         const merged = { ...current, ...(persisted as object) } as StaminaState
         merged.states = getCycleStates(merged.states)
+        merged.countdownEnabled = merged.countdownEnabled ?? DEFAULT_COUNTDOWN_ENABLED
         if (merged.activeSession) {
           const maxIdx = Math.max(0, merged.states.length - 1)
           merged.activeSession = {

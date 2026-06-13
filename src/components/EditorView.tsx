@@ -8,6 +8,7 @@ import {
 import { EditorToolbar } from './EditorToolbar'
 import { FootballField } from './FootballField'
 import { LeftPanel } from './LeftPanel'
+import { NavMenuButton } from './NavMenuButton'
 
 type MobileSheet = 'steps' | 'roster' | null
 
@@ -54,6 +55,8 @@ export function EditorView() {
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <header className="safe-pt safe-px shrink-0 border-b border-slate-800 bg-slate-950/90 backdrop-blur-sm">
           <div className="flex items-center gap-2 px-2 py-2 md:gap-3 md:px-4 md:py-3">
+            <NavMenuButton />
+
             <button
               type="button"
               onClick={goToTacticsList}

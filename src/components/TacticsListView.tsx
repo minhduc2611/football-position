@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { NavMenuButton } from './NavMenuButton'
 import { useTacticsStore } from '../store/tacticsStore'
 import { rosterTotal } from '../utils/roster'
 
@@ -21,10 +22,15 @@ export function TacticsListView() {
   return (
     <div className="safe-pt safe-pb safe-px mx-auto flex h-full w-full max-w-2xl flex-col overflow-y-auto px-3 py-4 sm:px-4 sm:py-6 md:py-8">
       <header className="mb-6 md:mb-8">
-        <h1 className="text-xl font-bold text-white sm:text-2xl">Chiến thuật</h1>
-        <p className="mt-1 text-sm text-slate-400">
-          Mỗi chiến thuật có các bước. Chọn để chỉnh sân và animation.
-        </p>
+        <div className="flex items-start gap-2">
+          <NavMenuButton className="mt-0.5" />
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl font-bold text-white sm:text-2xl">Chiến thuật</h1>
+            <p className="mt-1 text-sm text-slate-400">
+              Mỗi chiến thuật có các bước. Chọn để chỉnh sân và animation.
+            </p>
+          </div>
+        </div>
       </header>
 
       <div className="mb-4 flex flex-col gap-2 sm:mb-6 sm:flex-row">
